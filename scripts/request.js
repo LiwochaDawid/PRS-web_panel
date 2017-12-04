@@ -10,7 +10,7 @@ function loginRequest(username, password) {
 	request.setRequestHeader("Authorization", secret);
 	request.send("grant_type=password&username="+username+"&password="+password);
     function state_change() {
-		alert(request.readystate)
+		alert(request.readyState)
 		if (request.readyState == 4) {
 			if (request.status == 200) {
 				var response = JSON.parse(request.responseText);

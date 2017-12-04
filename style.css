@@ -5580,4 +5580,9 @@ body > * {
     background: linear-gradient(to top, #343a40 0%, transparent 100%); }
 
 .background-image {
-  background: url("images/background.jpg"); }
+  background: url("images/background.jpg") no-repeat center center fixed; 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  }
