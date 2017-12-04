@@ -10,15 +10,15 @@ function loginRequest(username, password) {
 	request.send(null);
     function state_change() {
 		if (request.readyState == 4) {
-			alert("1");
+			alert(path);
 			if (request.status == 200) {
-				alert("2");
+				alert("OK");
 				var response = JSON.parse(request.responseText);
 				var token = response.access_token;
 				return token;
 			}
 			else {
-				alert("3");
+				alert(request.status);
 			}
 		}
 	}
