@@ -2,20 +2,23 @@
 var mainPath = "http://localhost:8080/";
 
 function loginRequest(username, password) {
-	var path = mainPath+"token";
+	var path = mainPath+"token?grant_type=password&username="+username+"&password="+password;
 	var request = new XMLHttpRequest();
     request.onreadystatechange = state_change;
-	request.open("POST", path, false);
-	request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	request.open("POST", path, true);
 	request.setRequestHeader("Authorization", secret);
-	request.send("grant_type=password&username="+username+"&password="+password);
+	request.send(null);
     function state_change() {
-		alert(request.readyState)
 		if (request.readyState == 4) {
+			alert("1");
 			if (request.status == 200) {
+				alert("2");
 				var response = JSON.parse(request.responseText);
-				token = response.access_token;
+				var token = response.access_token;
 				return token;
+			}
+			else {
+				alert("3");
 			}
 		}
 	}
