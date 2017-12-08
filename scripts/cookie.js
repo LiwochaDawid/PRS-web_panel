@@ -3,12 +3,22 @@
 	return "bearer "+token;
 }
 
+function isTokenExists() {
+	var token = getCookie("token");
+	if (token == "") {
+		return false;
+	}
+	else {
+		return true;
+	}
+}
+
 function saveToken(token) {
     document.cookie = "token=" + token;
 }
 
-function clearCookies() {
-    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+function clearToken() {
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
 }
 
 function getCookie(cookieName) {

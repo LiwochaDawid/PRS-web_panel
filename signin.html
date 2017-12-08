@@ -12,18 +12,37 @@
   <script src="scripts/cookie.js"></script>
   <script src="scripts/request.js"></script>
   <script>
+	$(function(){
+		if (isTokenExists()) {
+			window.location.href("future_visits.html");
+		}
+	});
+	
     function login() {
-    		var username = document.getElementById('username').value
-    		var password = document.getElementById('password').value
-    		var response = loginRequest(username, password);
-    		if (!response.isInteger()) {
-    			saveToken(response);
-    			alert(response);
-    		}
-    		else {
-    			alert(response);
-    		}
-    	}
+		var username = document.getElementById('username').value
+		var password = document.getElementById('password').value
+		var request = new XMLHttpRequest();
+		var path = mainPath+"token?grant_type=password&username="+username+"&password="+password;
+		request.onreadystatechange = state_change;
+		request.open("POST", path, true);
+		request.setRequestHeader("Authorization", secret);
+		request.send(null);
+		function state_change() {
+			if (request.readyState == 4) {
+				if (request.status == 200) {
+					var response = JSON.parse(request.responseText);
+					saveToken(response.access_token);
+					window.location.href("future_visits.html");
+				}
+				else if (request.status == 400) {
+					alert("Invalid username or password!");
+				}
+				else {
+					window.location.href("error.html");
+				}
+			}
+		}
+	}
   </script>
 </head>
 
