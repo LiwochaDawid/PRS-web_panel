@@ -11,10 +11,14 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
   <script src="scripts/cookie.js"></script>
   <script src="scripts/request.js"></script>
+  <script src="scripts/get.js"></script>
   <script>
 	$(function(){
 		if (isTokenExists()) {
 			window.location.href("future_visits.html");
+		}
+		if (getParameter("register") == 1) {
+			$('#successRegistrationAlert').removeClass('hidden');
 		}
 	});
 	
@@ -57,6 +61,13 @@
       <div class="row">
         <div class="col-md-3"> </div>
         <div class="col-md-6">
+		  <div class="hidden" id="successRegistrationAlert">
+		    <div class="alert alert-success" role="alert">
+			  <button type="button" class="close" data-dismiss="alert" aria-label="Close">×</button>
+			  <h4 class="alert-heading">Success!</h4>
+			  <p class="mb-0">The registration has been completed successfully. You can log in now.</p>
+            </div>
+		  </div>
           <div class="card text-secondary bg-primary p-3">
             <div class="card-body">
               <h1 class="mb-4">Sign in
