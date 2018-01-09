@@ -193,8 +193,16 @@
 			if (this.value != 0) {
 				choosenDoctorID = this.value;
 				$('#selectPurpose').attr('disabled', false);
+				$('#selectPurpose').find('option').not(':first').remove();
+				$('#selectTime').find('option').not(':first').remove();
+				$('#description').attr('disabled', true);
+				$('#description').val('');
+				$('#date').val('');
 				loadConfiguration();
 				initSelectPurpose();
+				$('#step2').hide();
+				$('#step3').hide();
+				$('#step4').hide();
 			}
 			else {
 				purposes = [];
@@ -219,9 +227,14 @@
 		$('#selectPurpose').on('change', function() {
 			if (this.value != 0) {
 				choosenPurposeID = this.value;
+				$('#selectTime').find('option').not(':first').remove();
+				$('#description').val('');
+				$('#date').val('');
 				$('#description').attr('disabled', false);
 				initCalendar();
 				$('#step2').show();
+				$('#step3').hide();
+				$('#step4').hide();
 			}
 			else {
 				$('#selectTime').find('option').not(':first').remove();
@@ -279,9 +292,10 @@
 			showedCalendarDate = "01"+month+year;
 			showedCalendarMonth = month-1;
 			loadNumbersOfVisits();
-			$('#step3').show();
 		});
 		$('#date').on('changeDate', function(e) {
+			$('#step4').hide();
+			$('#selectTime').find('option').not(':first').remove();
 			var date = document.getElementById('date').value;
 			var dateParts = date.split('-');
 			var day = dateParts[2];		
