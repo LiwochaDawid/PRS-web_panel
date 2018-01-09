@@ -12,44 +12,47 @@
   <script src="scripts/cookie.js"></script>
   <script src="scripts/request.js"></script>
   <script src="scripts/get.js"></script>
-  <script>
-    $(function(){
-    		if (!isTokenExists()) {
-    			window.location.href("signin.html");
-    		}
-    		else {
-    			var request = new XMLHttpRequest();
-    			var path = mainPath+"patient/this?access_token="+getToken();
-    			request.onreadystatechange = state_change;
-    			request.open("GET", path, false);
-    			request.setRequestHeader("Content-Type", "application/json");
-    			request.setRequestHeader("Authorization", secret);
-    			request.send();
-    			function state_change() {
-    				if (request.readyState == 4) {
-    					if (request.status == 200) {
-    						var response = JSON.parse(request.responseText);
-    						$('#name').val(response.name);
-    						$('#surname').val(response.surname);
-    						$('#address').val(response.street);
-    						$('#postcode').val(response.postcode);
-    						$('#city').val(response.city);
-    						$('#phone_number').val(response.phoneNumber);
-    					}
-    					else {
-    						window.location.href("error.html");
-    					}
-    				}
-    			}
-    		}
-    	});
-    	
-    	function signOut() {
-    		clearToken();
-    		window.location.href("signin.html");
-    	}
-  </script>
 </head>
+  
+<script>
+
+	$(function(){
+		if (!isTokenExists()) {
+			window.location.href("signin.html");
+		}
+		else {
+			var request = new XMLHttpRequest();
+			var path = mainPath+"patient/this?access_token="+getToken();
+			request.onreadystatechange = state_change;
+			request.open("GET", path, false);
+			request.setRequestHeader("Content-Type", "application/json");
+			request.setRequestHeader("Authorization", secret);
+			request.send();
+			function state_change() {
+				if (request.readyState == 4) {
+					if (request.status == 200) {
+						var response = JSON.parse(request.responseText);
+						$('#name').val(response.name);
+						$('#surname').val(response.surname);
+						$('#address').val(response.street);
+						$('#postcode').val(response.postcode);
+						$('#city').val(response.city);
+						$('#phone_number').val(response.phoneNumber);
+					}
+					else {
+						window.location.href("error.html");
+					}
+				}
+			}
+		}
+	});
+	
+	function signOut() {
+		clearToken();
+		window.location.href("signin.html");
+	}
+		
+</script>
 
 <body class="background-image">
   <nav class="navbar navbar-expand-md navbar-dark bg-secondary">
