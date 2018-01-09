@@ -11,31 +11,407 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js"></script>
-  <script>
-    $(document).ready(function(){
-        var date_input=$('input[name="date"]'); //our date input has the name "date"
-        var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
-        date_input.datepicker({
-            format: 'yyyy-mm-dd',
-            container: container,
-            todayHighlight: true,
-            autoclose: true,
-			weekStart: 1,
-			toggleActive: true,
-        })
-		var doctors = {
-			val1 : 'dr. Andrzej Nowak',
-			val2 : 'lek. stom. Joanna Kowalska'
-		};
-		$.each(doctors, function(value, text) {
-			$('#doctorsDropDownMenuItems').append($('<a class="dropdown-item"></a>').val(value).html(text));
-		});
-		$('#doctorsDropDownMenuItems').on('click', function() {
-			alert($(this).attr('text'));
-		});
-    })
-  </script>
+  <script src="scripts/cookie.js"></script>
+  <script src="scripts/request.js"></script>
+  <script src="scripts/timestamp.js"></script>
 </head>
+
+<script>
+
+	var doctors = [];
+	var purposes = [];
+	var configuration;
+	var numberOfVisits = [];
+	var visits = [];
+	var choosenDoctorID;
+	var choosenPurposeID;
+	var choosenDate;
+	var showedCalendarDate;
+	var showedCalendarMonth;
+	var choosenTime;
+	var today = new Date();
+	var workStart;
+	var workEnd;
+
+	$(document).ready(function(){
+		if (!isTokenExists()) {
+			window.location.href("signin.html");
+		}
+		initSelectDoctor();
+		$('#step2').hide();
+		$('#step3').hide();	
+		$('#step4').hide();
+	})
+	
+	function signOut() {
+		clearToken();
+		window.location.href("signin.html");
+	}
+	
+	function loadDoctors() {
+		var request = new XMLHttpRequest();
+		var path = mainPath+"doctor/all?access_token="+getToken();
+		request.onreadystatechange = state_change;
+		request.open("GET", path, false);
+		request.setRequestHeader("Content-Type", "application/json");
+		request.setRequestHeader("Authorization", secret);
+		request.send();
+		function state_change() {
+			if (request.readyState == 4) {
+				if (request.status == 200) {
+					var response = JSON.parse(request.responseText);
+					doctors = response;
+				}
+				else {
+					window.location.href("error.html");
+				}
+			}
+		}
+	}
+	
+	function loadNumbersOfVisits() {
+		var request = new XMLHttpRequest();
+		var path = mainPath+"visit/numberOfVisitsByPatient="+showedCalendarDate+"&doctorID="+choosenDoctorID+"?access_token="+getToken();
+		request.onreadystatechange = state_change;
+		request.open("GET", path, false);
+		request.setRequestHeader("Content-Type", "application/json");
+		request.setRequestHeader("Authorization", secret);
+		request.send();
+		function state_change() {
+			if (request.readyState == 4) {
+				if (request.status == 200) {
+					var response = JSON.parse(request.responseText);
+					numberOfVisits = response;
+				}
+				else {
+					window.location.href("error.html");
+				}
+			}
+		}
+	}
+	
+	function loadVisits() {
+		var request = new XMLHttpRequest();
+		var path = mainPath+"visit/doctorID="+choosenDoctorID+"&date="+choosenDate+"?access_token="+getToken();
+		request.onreadystatechange = state_change;
+		request.open("GET", path, false);
+		request.setRequestHeader("Content-Type", "application/json");
+		request.setRequestHeader("Authorization", secret);
+		request.send();
+		function state_change() {
+			if (request.readyState == 4) {
+				if (request.status == 200) {
+					var response = JSON.parse(request.responseText);
+					visits = response;
+				}
+				else {
+					window.location.href("error.html");
+				}
+			}
+		}
+	}
+		
+	function loadPurposes() {
+		var request = new XMLHttpRequest();
+		var path = mainPath+"purpose/doctor="+choosenDoctorID+"?access_token="+getToken();
+		request.onreadystatechange = state_change;
+		request.open("GET", path, false);
+		request.setRequestHeader("Content-Type", "application/json");
+		request.setRequestHeader("Authorization", secret);
+		request.send();
+		function state_change() {
+			if (request.readyState == 4) {
+				if (request.status == 200) {
+					var response = JSON.parse(request.responseText);
+					purposes = response;
+				}
+				else {
+					window.location.href("error.html");
+				}
+			}
+		}
+	}
+	
+	function loadConfiguration() {
+		var request = new XMLHttpRequest();
+		var path = mainPath+"configuration/doctor="+choosenDoctorID+"?access_token="+getToken();
+		request.onreadystatechange = state_change;
+		request.open("GET", path, false);
+		request.setRequestHeader("Content-Type", "application/json");
+		request.setRequestHeader("Authorization", secret);
+		request.send();
+		function state_change() {
+			if (request.readyState == 4) {
+				if (request.status == 200) {
+					var response = JSON.parse(request.responseText);
+					configuration = response;
+				}
+				else {
+					window.location.href("error.html");
+				}
+			}
+		}		
+	}
+	
+	function addVisit() {
+		var requestBody = {
+			'date': choosenTime,
+			'comment': document.getElementById('description').value,
+			'doctor': {
+				'doctorID': choosenDoctorID
+			},
+			'purpose': {
+				'purposeID': choosenPurposeID	
+			}
+		};
+		var request = new XMLHttpRequest();
+		var path = mainPath+"visit/addAsPatient?access_token="+getToken();
+		request.onreadystatechange = state_change;
+		request.open("POST", path, true);
+		request.setRequestHeader("Content-Type", "application/json");
+		request.setRequestHeader("Authorization", secret);
+		request.send(JSON.stringify(requestBody));
+		function state_change() {
+			if (request.readyState == 4) {
+				if (request.status == 200) {
+					window.location.href("future_visits.html?added=1");
+				}
+				else {
+					alert(request.status);
+					window.location.href("error.html");
+				}
+			}
+		}
+	}
+	
+	function initSelectDoctor() {
+		loadDoctors();
+		for (var i = 0; i < doctors.length; i++) {
+			$('#selectDoctor').append($("<option></option>").attr("value",doctors[i].doctorID).text(doctors[i].prefix+" "+doctors[i].name+" "+doctors[i].surname));
+		}
+		$('#selectDoctor').on('change', function() {
+			if (this.value != 0) {
+				choosenDoctorID = this.value;
+				$('#selectPurpose').attr('disabled', false);
+				loadConfiguration();
+				initSelectPurpose();
+			}
+			else {
+				purposes = [];
+				$('#selectPurpose').attr('disabled', true);
+				$('#selectPurpose').find('option').not(':first').remove();
+				$('#selectTime').find('option').not(':first').remove();
+				$('#description').attr('disabled', true);
+				$('#description').val('');
+				$('#date').val('');
+				$('#step2').hide();
+				$('#step3').hide();
+				$('#step4').hide();
+			}
+		})
+	}
+	
+	function initSelectPurpose() {
+		loadPurposes();
+		for (var i = 0; i < purposes.length; i++) {
+			$('#selectPurpose').append($("<option></option>").attr("value",purposes[i].purposeID).text(purposes[i].name+" (DURATION: "+purposes[i].duration+")"));
+		}
+		$('#selectPurpose').on('change', function() {
+			if (this.value != 0) {
+				choosenPurposeID = this.value;
+				$('#description').attr('disabled', false);
+				initCalendar();
+				$('#step2').show();
+			}
+			else {
+				$('#selectTime').find('option').not(':first').remove();
+				$('#description').attr('disabled', true);
+				$('#description').val('');
+				$('#date').val('');
+				$('#step2').hide();
+				$('#step3').hide();
+				$('#step4').hide();
+			}
+
+		})
+	}
+	
+	function initCalendar() {
+		var month = today.getMonth()+1;
+		var year = today.getFullYear();
+		showedCalendarDate = "010"+month+year;
+		showedCalendarMonth = month-1;
+		loadNumbersOfVisits();
+		var date_input=$('input[name="date"]'); //our date input has the name "date"
+		var container=$('.bootstrap-iso form').length>0 ? $('.bootstrap-iso form').parent() : "body";
+		date_input.datepicker({
+			format: 'yyyy-mm-dd',
+			container: container,
+			autoclose: true,
+			weekStart: 1,
+			selectOtherMonths: false,
+			beforeShowDay: function (date){
+				if (date < today) {
+					return false;
+				}
+				for (var i=0; i<numberOfVisits.length; i++) {
+					if (date.getDate() == i+1 && date.getMonth() == showedCalendarMonth) {
+						if (numberOfVisits[i] >= 4) {
+							return "red-background";
+						}
+						else if (numberOfVisits[i] >= 2) {
+							return "yellow-background";
+						}
+						else {
+							return "green-background";
+						}
+					}
+				}
+            }
+		})
+		$('#date').on('changeMonth', function(e) {
+			var month = new Date(e.date).getMonth()+1;
+			var year = new Date(e.date).getFullYear();
+			month = month.toString();
+			if (month.length < 2) {
+				month = "0"+month;
+			}
+			showedCalendarDate = "01"+month+year;
+			showedCalendarMonth = month-1;
+			loadNumbersOfVisits();
+			$('#step3').show();
+		});
+		$('#date').on('changeDate', function(e) {
+			var date = document.getElementById('date').value;
+			var dateParts = date.split('-');
+			var day = dateParts[2];		
+			var month = dateParts[1];		
+			var year = dateParts[0];
+			date = new Date(dateParts[0], dateParts[1]-1, dateParts[2]); 
+			month = month.toString();
+			if (month.length < 2) {
+				month = "0"+month;
+			}
+			day = day.toString();
+			if (day.length < 2) {
+				day = "0"+day;
+			}
+			if (date.getDay() == 0) {
+				workStart = configuration.suWorkStart;
+				workEnd = configuration.suWorkEnd;
+			}
+			else if (date.getDay() == 1) {
+				workStart = configuration.moWorkStart;
+				workEnd = configuration.moWorkEnd;
+			}
+			else if (date.getDay() == 2) {
+				workStart = configuration.tuWorkStart;
+				workEnd = configuration.tuWorkEnd;
+			}
+			else if (date.getDay() == 3) {
+				workStart = configuration.weWorkStart;
+				workEnd = configuration.weWorkEnd;
+			}
+			else if (date.getDay() == 4) {
+				workStart = configuration.thWorkStart;
+				workEnd = configuration.thWorkEnd;
+			}
+			else if (date.getDay() == 5) {
+				workStart = configuration.frWorkStart;
+				workEnd = configuration.frWorkEnd;
+			}
+			else if (date.getDay() == 6) {
+				workStart = configuration.saWorkStart;
+				workEnd = configuration.saWorkEnd;
+			}
+			var temp = workStart.split(':');
+			workStart = new Date(1970, 0, 1, parseInt(temp[0])+1, temp[1], 0, 0);
+			workStart = workStart.getTime();
+			temp = workEnd.split(':');
+			workEnd = new Date(1970, 0, 1, parseInt(temp[0])+1, temp[1], 0, 0);
+			workEnd = workEnd.getTime();		
+			choosenDate = day+month+year;
+			initSelectTime();
+			$('#step3').show();
+		})
+	}
+	
+	
+	function initSelectTime() {
+		loadVisits();
+		var duration;
+		var temp = document.getElementById('date').value.split('-');
+		var date = new Date(temp[0], parseInt(temp[1])-1, temp[2], 0, 0, 0, 0);
+		date = date.getTime();
+		workStart = new Date(workStart + date);
+		workStart = workStart.getTime();
+		workEnd = new Date(workEnd + date);
+		workEnd = workEnd.getTime();
+		for (var i=0; i<visits.length; i++) {		
+			temp = visits[i].duration.split(':');
+			duration = new Date(1970, 0, 1, parseInt(temp[0])+1, temp[1], 0, 0);
+			visits[i].duration = duration.getTime();	
+		}
+		for (var i=0; i<purposes.length; i++) {
+			if (choosenPurposeID == purposes[i].purposeID) {
+				temp = purposes[i].duration.split(':');
+				duration = new Date(1970, 0, 1, parseInt(temp[0])+1, temp[1], 0, 0);
+				duration = duration.getTime();
+				break;
+			}
+		}
+		var step = new Date(1970, 0, 1, 1, 30, 0, 0);
+		step = step.getTime();
+		var startToCompare;
+		var endToCompare;
+		var startToCheck = new Date(workStart);
+		startToCheck = startToCheck.getTime();
+		var endToCheck = new Date(duration+workStart);
+		endToCheck = endToCheck.getTime();
+		while ((startToCheck < workEnd) && (endToCheck <= workEnd)) {		
+			for (var j=0; j<visits.length; j++) {
+				startToCompare = visits[j].date;
+				endToCompare = new Date(visits[j].date + visits[j].duration);
+				endToCompare = endToCompare.getTime();
+				if (endToCompare <= startToCheck) {
+					continue;
+				}
+				else {
+					if ((startToCheck >= startToCompare) || (endToCheck > startToCompare)) {
+						break;
+					}
+				}
+			}
+			if ((j == visits.length) || (visits.length == 0)) {
+				var time = new Date(startToCheck);
+				var hh = time.getHours().toString();
+				if (hh.length < 2) {
+					hh = "0"+hh;
+				}
+				var mm = time.getMinutes().toString();
+				if (mm.length < 2) {
+					mm = "0"+mm;
+				}
+				time = hh+":"+mm;
+				$('#selectTime').append($("<option></option>").attr("value", startToCheck).text(time));
+			}
+			startToCheck = new Date(step+startToCheck);
+			startToCheck = startToCheck.getTime();
+			endToCheck = new Date(step+endToCheck);
+			endToCheck = endToCheck.getTime();
+		}
+		$('#selectTime').on('change', function() {
+			if (this.value != 0) {
+				choosenTime = this.value;
+				$('#step4').show();
+			}
+			else {
+				$('#step4').hide();
+			}
+
+		})
+	}
+</script>
 
 <body class="background-image">
   <nav class="navbar navbar-expand-md navbar-dark bg-secondary">
@@ -56,27 +432,41 @@
             <a class="nav-link" href="settings.html"><i class="fa d-inline fa-lg fa-cogs"></i> Settings</a>
           </li>
         </ul>
-        <a class="btn navbar-btn ml-2 text-white btn-dark"><i class="fa d-inline fa-lg fa-user-circle-o"></i> Sign out</a>
+        <a class="btn navbar-btn ml-2 text-white btn-dark" onclick="signOut()"><i class="fa d-inline fa-lg fa-user-circle-o"></i> Sign out</a>
       </div>
     </div>
   </nav>
   <div class="p-5">
     <div class="container">
       <div class="row">
-        <div class="p-3 col-md-6 align-self-start ">
+        <div class="p-3 col-md-12 align-self-start ">
           <div class="card">
             <div class="card-header"> Step 1</div>
             <div class="card-body">
-              <h4>Choose a doctor</h4>
+              <h4>Fill in the form</h4>
               <hr>
-              <div class="btn-group">
-                <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" id="doctorsDropDownMenu">- - - - - - - - - -</button>
-                <div class="dropdown-menu" id="doctorsDropDownMenuItems"></div>
-              </div>
+			  <div class="form-group"> 
+				<label for="selectDoctor">Choose doctor</label>
+				<select class="form-control" id="selectDoctor">
+				  <option value="0">- - - - -</option>
+				</select>
+			  </div>
+			  <div class="form-group"> 
+				<label for="selectPurpose">Choose purpose</label>
+				<select class="form-control" id="selectPurpose" disabled>
+				  <option value="0">- - - - -</option>
+				</select>
+			  </div>
+			  <div class="form-group">
+				<label for="description">Describe the details (optional)</label>
+				<textarea class="form-control" id="description" rows="3" disabled></textarea>
+			  </div>
             </div>
           </div>
         </div>
-        <div class="p-3 col-md-6 align-self-start ">
+	  </div>
+	  <div class="row">
+        <div class="p-3 col-md-6 align-self-start " id="step2">
           <div class="card">
             <div class="card-header"> Step 2</div>
             <div class="card-body">
@@ -85,31 +475,39 @@
               <div class="input-group">
                 <div class="input-group-addon"> <i class="fa fa-calendar">
                   </i> </div>
-                <input class="form-control" id="date" name="date" placeholder="YYYY-MM-DD" type="text"> </div>
+                <input class="form-control" id="date" name="date" placeholder="YYYY-MM-DD" type="text" readonly='true'> </div>
             </div>
           </div>
         </div>
-      </div>
-      <div class="row">
-        <div class="p-3 col-md-12 align-self-start ">
+        <div class="p-3 col-md-6 align-self-start " id="step3">
           <div class="card">
             <div class="card-header"> Step 3</div>
             <div class="card-body">
               <h4>Choose the time</h4>
-              <hr> </div>
+              <hr> 
+			  <div class="form-group"> 
+				<select class="form-control" id="selectTime">
+				  <option value="0">- - - - -</option>
+				</select>
+			  </div>		  
+			</div>
           </div>
         </div>
       </div>
-      <div class="row">
-        <div class="p-3 col-md-12 align-self-start ">
+	  
+	  <div class="row justify-content-md-center">
+        <div class="p-3 col-md-6 align-center " id="step4">
           <div class="card">
             <div class="card-header"> Step 4</div>
             <div class="card-body">
-              <h4>Fill in the form</h4>
-              <hr> </div>
+              <h4>Confirm new visit</h4>
+              <hr>
+              <button type="button" class="btn btn-secondary btn-block btn-lg" data-dismiss="modal" id="confirmButton" onclick="addVisit()">Confirm</button>
+            </div>
           </div>
         </div>
-      </div>
+	  </div>
+	  
     </div>
   </div>
 </body>

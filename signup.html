@@ -19,14 +19,14 @@
 	});
 	
     function register() {
-		$('#userAlreadyExistsAlert').addClass('hidden');
-		$('#passwordsDoNotMatchAlert').addClass('hidden');
+		$('#userAlreadyExistsAlert').hide();
+		$('#passwordsDoNotMatchAlert').hide();
 		var confirm_password = document.getElementById('confirm_password').value;
 		var password = document.getElementById('password').value;
 		if (password != confirm_password) {
 			$('#password').val("");
 			$('#confirm_password').val("");
-			$('#passwordsDoNotMatchAlert').removeClass('hidden');
+			$('#passwordsDoNotMatchAlert').show();
 		}
 		else {
 			var requestBody = {
@@ -50,8 +50,6 @@
 			request.open("POST", path, true);
 			request.setRequestHeader("Content-Type", "application/json");
 			request.setRequestHeader("Authorization", secret);
-			alert(path);
-			alert(JSON.stringify(requestBody));
 			request.send(JSON.stringify(requestBody));
 			function state_change() {
 				if (request.readyState == 4) {
@@ -62,10 +60,9 @@
 						$('#username').val("");
 						$('#password').val("");
 						$('#confirm_password').val("");
-						$('#userAlreadyExistsAlert').removeClass('hidden');
+						$('#userAlreadyExistsAlert').show();
 					}
 					else {
-						alert(request.status); 
 						window.location.href("error.html");
 					}
 				}
@@ -107,7 +104,7 @@
                   <input type="text" class="form-control" placeholder="Phone number" id="phone_number" required=""> </div>
                 <div class="form-group"> <label>Email address</label>
                   <input type="email" class="form-control" placeholder="Email address" id="username" required=""> </div>
-				<div class="hidden" id="userAlreadyExistsAlert">
+				<div id="userAlreadyExistsAlert" hidden>
 				  <div class="alert alert-danger" role="alert">
 				    <button type="button" class="close" data-dismiss="alert" aria-label="Close">×</button>
 				    <h4 class="alert-heading">Error!</h4>
@@ -118,7 +115,7 @@
                   <input type="password" class="form-control" placeholder="Password" id="password" required=""> </div>
                 <div class="form-group"> <label>Confirm password</label>
                   <input type="password" class="form-control" placeholder="Confirm password" id="confirm_password" required=""> </div>
-				<div class="hidden" id="passwordsDoNotMatchAlert">
+				<div id="passwordsDoNotMatchAlert" hidden>
 				  <div class="alert alert-danger" role="alert">
 				    <button type="button" class="close" data-dismiss="alert" aria-label="Close">×</button>
 				    <h4 class="alert-heading">Error!</h4>

@@ -23,6 +23,8 @@
 	});
 	
     function login() {
+		$('#successRegistrationAlert').addClass('hidden');
+		$('#invalidDataAlert').addClass('hidden');
 		var username = document.getElementById('username').value
 		var password = document.getElementById('password').value
 		var request = new XMLHttpRequest();
@@ -38,8 +40,8 @@
 					saveToken(response.access_token);
 					window.location.href("future_visits.html");
 				}
-				else if (request.status == 400) {
-					alert("Invalid username or password!");
+				else if ((request.status) == 400 || (request.status == 401)) {
+					$('#invalidDataAlert').removeClass('hidden');
 				}
 				else {
 					window.location.href("error.html");
@@ -66,6 +68,13 @@
 			  <button type="button" class="close" data-dismiss="alert" aria-label="Close">×</button>
 			  <h4 class="alert-heading">Success!</h4>
 			  <p class="mb-0">The registration has been completed successfully. You can log in now.</p>
+            </div>
+		  </div>
+		  <div class="hidden" id="invalidDataAlert">
+		    <div class="alert alert-danger" role="alert">
+			  <button type="button" class="close" data-dismiss="alert" aria-label="Close">×</button>
+			  <h4 class="alert-heading">Error!</h4>
+			  <p class="mb-0">Invalid email or password.</p>
             </div>
 		  </div>
           <div class="card text-secondary bg-primary p-3">

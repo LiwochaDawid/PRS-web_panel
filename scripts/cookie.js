@@ -1,6 +1,6 @@
 ﻿function getToken() {
 	var token = getCookie("token")
-	return "bearer "+token;
+	return token;
 }
 
 function isTokenExists() {

@@ -5590,3 +5590,16 @@ body > * {
 .hidden { 
   display: none;
 }
+
+.green-background{
+    background: #99ff99; 
+ }
+ 
+ .yellow-background{
+    background: #ffff80; 
+ }
+ 
+ .red-background{
+    background: #ff704d; 
+ }
+ 
