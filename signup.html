@@ -13,14 +13,14 @@
   <script src="scripts/request.js"></script>
   <script>
 	$(function(){
+		$('#userAlreadyExistsAlert').hide();
+		$('#passwordsDoNotMatchAlert').hide();
 		if (isTokenExists()) {
 			window.location.href("future_visits.html");
 		}
 	});
 	
     function register() {
-		$('#userAlreadyExistsAlert').hide();
-		$('#passwordsDoNotMatchAlert').hide();
 		var confirm_password = document.getElementById('confirm_password').value;
 		var password = document.getElementById('password').value;
 		if (password != confirm_password) {
@@ -104,7 +104,7 @@
                   <input type="text" class="form-control" placeholder="Phone number" id="phone_number" required=""> </div>
                 <div class="form-group"> <label>Email address</label>
                   <input type="email" class="form-control" placeholder="Email address" id="username" required=""> </div>
-				<div id="userAlreadyExistsAlert" hidden>
+				<div id="userAlreadyExistsAlert">
 				  <div class="alert alert-danger" role="alert">
 				    <button type="button" class="close" data-dismiss="alert" aria-label="Close">×</button>
 				    <h4 class="alert-heading">Error!</h4>
@@ -115,7 +115,7 @@
                   <input type="password" class="form-control" placeholder="Password" id="password" required=""> </div>
                 <div class="form-group"> <label>Confirm password</label>
                   <input type="password" class="form-control" placeholder="Confirm password" id="confirm_password" required=""> </div>
-				<div id="passwordsDoNotMatchAlert" hidden>
+				<div id="passwordsDoNotMatchAlert">
 				  <div class="alert alert-danger" role="alert">
 				    <button type="button" class="close" data-dismiss="alert" aria-label="Close">×</button>
 				    <h4 class="alert-heading">Error!</h4>
