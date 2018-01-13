@@ -22,10 +22,36 @@
     		if (getParameter("added") == 1) {
     			$('#successAddedVisitAlert').removeClass('hidden');
     		}
+			if (getParameter("deleted") == 1) {
+    			$('#successDeletedVisitAlert').removeClass('hidden');
+    		}
     		loadVisits();
     		initVisits();
+			$(".deleteButton").click(function(){
+				deleteVisit($(this).closest('tr').attr('id'));
+			});
     	});
     	
+		function deleteVisit(visitID) {
+			var request = new XMLHttpRequest();
+			var path = mainPath+"visit/deleteAsPatientVisitID="+visitID+"?access_token="+getToken();
+			request.onreadystatechange = state_change;
+			request.open("POST", path, true);
+			request.setRequestHeader("Content-Type", "application/json");
+			request.setRequestHeader("Authorization", secret);
+			request.send();
+			function state_change() {
+				if (request.readyState == 4) {
+					if (request.status == 200) {
+						window.location.href("future_visits.html?deleted=1");
+					}
+					else {
+						window.location.href("error.html");
+					}
+				}
+			}
+		}
+		
     	function signOut() {
     		clearToken();
     		window.location.href("signin.html");
@@ -51,10 +77,11 @@
     			}
     		}	
     	}
-    	
+		
     	function initVisits() {
     		for (var i=0; i<visits.length; i++) {
     			var index = i+1;
+				var visitID = visits[i].visitID;
     			var doctor = visits[i].doctor.prefix+" "+visits[i].doctor.name+" "+visits[i].doctor.surname;
     			var purpose = visits[i].purpose.name;
     			var date = new Date(visits[i].date);
@@ -63,6 +90,7 @@
     			var year = date.getFullYear().toString();
     			var hours = date.getHours().toString();
     			var minutes = date.getMinutes().toString();
+				var today = new Date();
     			if (day.length < 2) {
     				day = "0"+day;
     			}
@@ -75,9 +103,15 @@
     			if (minutes.length < 2) {
     				minutes = "0"+minutes;
     			}
-    			date = year+"-"+month+"-"+day+" "+hours+":"+minutes;
-    			$("#visits").find('tbody').append($('<tr><td>'+index+'</td><td>'+doctor+'</td><td>'+purpose+'</td><td>'+date+'</td>'));
-    		}
+				if (date.setHours(0,0,0,0) == today.setHours(0,0,0,0)) {
+					date = year+"-"+month+"-"+day+" "+hours+":"+minutes;
+					$("#visits").find('tbody').append($('<tr id='+visitID+'><td>'+index+'</td><td>'+doctor+'</td><td>'+purpose+'</td><td>'+date+'</td><td><button type="button" class="deleteButton btn btn-secondary btn-block btn-sm" data-dismiss="modal" id="deleteButton" disabled>Delete</button></td></tr>'));
+				}
+				else {
+					date = year+"-"+month+"-"+day+" "+hours+":"+minutes;
+					$("#visits").find('tbody').append($('<tr id='+visitID+'><td>'+index+'</td><td>'+doctor+'</td><td>'+purpose+'</td><td>'+date+'</td><td><button type="button" class="deleteButton btn btn-secondary btn-block btn-sm" data-dismiss="modal" id="deleteButton">Delete</button></td></tr>'));
+				}
+			}
     	}
   </script>
 </head>
@@ -92,7 +126,7 @@
       <div class="collapse navbar-collapse text-center justify-content-end" id="navbar2SupportedContent">
         <ul class="navbar-nav">
           <li class="nav-item">
-            <a class="nav-link" href="future_visits.html"><i class="fa d-inline fa-lg fa-calendar"></i> Visits</a>
+            <a class="nav-link text-white" href="future_visits.html"><i class="fa d-inline fa-lg fa-calendar"></i> Visits</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="contact.html"><i class="fa d-inline fa-lg fa-envelope-o"></i> Contact</a>
@@ -111,6 +145,13 @@
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">×</button>
         <h4 class="alert-heading">Success!</h4>
         <p class="mb-0">Your visit has been added.</p>
+      </div>
+    </div>
+	<div class="hidden" id="successDeletedVisitAlert">
+      <div class="alert alert-success" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">×</button>
+        <h4 class="alert-heading">Success!</h4>
+        <p class="mb-0">Your visit has been deleted.</p>
       </div>
     </div>
     <div class="container">
@@ -142,6 +183,7 @@
                   <th>Doctor</th>
                   <th>Purpose</th>
                   <th>Date</th>
+				  <th>Action</th>
                 </tr>
               </thead>
               <tbody> </tbody>

@@ -41,7 +41,8 @@
     	function initDoctors() {
     		for (var i=0; i<doctors.length; i++) {
 				var doctorName = doctors[i].prefix+" "+doctors[i].name+" "+doctors[i].surname;
-    			$('#doctorsList').append($("<div class='row'><div class='col-md-4'><img class='img-fluid d-block mx-auto' src='images/avatar_placeholder.png' width='300'> </div><div class='col-md-8'><ul class='list-group'><li class='list-group-item d-flex justify-content-between align-items-center'>"+doctorName+"<i class='fa fa-user fa-fw fa-2x'></i></li><li class='list-group-item d-flex justify-content-between align-items-center' contenteditable='true'> About me:<br><br> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vel erat venenatis, accumsan libero vitae, suscipit tortor. Nam egestas eros dolor, a consectetur felis tempus in. Cras et condimentum leo, id bibendum leo. Etiamnulla arcu, molestie sed nisi sed, tincidunt cursus sem. Integer ut mauris consequat, rhoncus est sed, lacinia enim. Pellentesque est leo, tristique vulputate neque id, ultricies ultrices lacus. In hac habitasse platea dictumst.Duis convallis ex ullamcorper enim tristique condimentum. Curabitur a ultricies nisl. Pellentesque imperdiet ornare ullamcorper. </li></ul></div></div><br>"));
+				var phoneNumber = doctors[i].phoneNumber;
+    			$('#doctorsList').append($("<div class='row'><div class='col-md-4'><img class='img-fluid d-block mx-auto' src='images/avatar_placeholder.png' width='300'> </div><div class='col-md-8'><ul class='list-group'><li class='list-group-item d-flex justify-content-between align-items-center'>"+doctorName+"<i class='fa fa-user fa-fw fa-2x'></i></li><li class='list-group-item d-flex justify-content-between align-items-center'>"+phoneNumber+"<i class='fa fa-phone fa-fw fa-2x'></i></li><li class='list-group-item d-flex justify-content-between align-items-center' contenteditable='true'> About me:<br><br> Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque vel erat venenatis, accumsan libero vitae, suscipit tortor. Nam egestas eros dolor, a consectetur felis tempus in. Cras et condimentum leo, id bibendum leo. Etiamnulla arcu, molestie sed nisi sed, tincidunt cursus sem. Integer ut mauris consequat, rhoncus est sed, lacinia enim. Pellentesque est leo, tristique vulputate neque id, ultricies ultrices lacus. In hac habitasse platea dictumst.Duis convallis ex ullamcorper enim tristique condimentum. Curabitur a ultricies nisl. Pellentesque imperdiet ornare ullamcorper. </li></ul></div></div><br>"));
     		}
     	}
     	
@@ -86,7 +87,7 @@
             <a class="nav-link" href="future_visits.html"><i class="fa d-inline fa-lg fa-calendar"></i> Visits</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="contact.html"><i class="fa d-inline fa-lg fa-envelope-o"></i> Contact</a>
+            <a class="nav-link text-white" href="contact.html"><i class="fa d-inline fa-lg fa-envelope-o"></i> Contact</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="settings.html"><i class="fa d-inline fa-lg fa-cogs"></i> Settings</a>

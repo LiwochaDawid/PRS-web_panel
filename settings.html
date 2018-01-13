@@ -37,6 +37,7 @@
 						$('#address').val(response.street);
 						$('#postcode').val(response.postcode);
 						$('#city').val(response.city);
+						$('#country').val(response.country);
 						$('#phone_number').val(response.phoneNumber);
 					}
 					else {
@@ -45,7 +46,43 @@
 				}
 			}
 		}
+		if (getParameter("personalDataChange") == 1) {
+			$('#successUpdateAlert').removeClass('hidden');
+    	}
 	});
+	
+	function updatePatient() {
+		var requestBody = {
+				'name': document.getElementById('name').value,
+				'surname': document.getElementById('surname').value,
+				'street': document.getElementById('address').value,
+				'postcode': document.getElementById('postcode').value,
+				'city': document.getElementById('city').value,
+				'country': document.getElementById('country').value,
+				'phoneNumber': document.getElementById('phone_number').value
+		};
+		var request = new XMLHttpRequest();
+		var path = mainPath+"patient/updateThis?access_token="+getToken();
+		request.onreadystatechange = state_change;
+		request.open("POST", path, true);
+		request.setRequestHeader("Content-Type", "application/json");
+		request.setRequestHeader("Authorization", secret);
+		request.send(JSON.stringify(requestBody));
+		function state_change() {
+			if (request.readyState == 4) {
+				if (request.status == 200) {
+					window.location.href("settings.html?personalDataChange=1");
+				}
+				else {
+					window.location.href("error.html");
+				}
+			}
+		}
+	}
+	
+	function changePassword() {
+		
+	}
 	
 	function signOut() {
 		clearToken();
@@ -70,7 +107,7 @@
             <a class="nav-link" href="contact.html"><i class="fa d-inline fa-lg fa-envelope-o"></i> Contact</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="settings.html"><i class="fa d-inline fa-lg fa-cogs"></i> Settings</a>
+            <a class="nav-link text-white" href="settings.html"><i class="fa d-inline fa-lg fa-cogs"></i> Settings</a>
           </li>
         </ul>
         <a class="btn navbar-btn ml-2 text-white btn-dark" onclick="signOut()"><i class="fa d-inline fa-lg fa-user-circle-o"></i> Sign out</a>
@@ -78,6 +115,20 @@
     </div>
   </nav>
   <div class="p-5">
+	<div class="hidden" id="successUpdateAlert">
+      <div class="alert alert-success" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">×</button>
+        <h4 class="alert-heading">Success!</h4>
+        <p class="mb-0">Your personal data has been changed.</p>
+      </div>
+    </div>
+	<div class="hidden" id="successChangePasswordAlert">
+      <div class="alert alert-success" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">×</button>
+        <h4 class="alert-heading">Success!</h4>
+        <p class="mb-0">Your password has been changed.</p>
+      </div>
+    </div>
     <div class="container">
       <div class="row">
         <div class="p-3 align-self-center col-md-7">
@@ -122,7 +173,7 @@
                 </div>
                 <div class="row mb-3">
                   <div class="col-md-12">
-                    <button type="button" class="btn btn-secondary btn-block btn-lg" data-dismiss="modal">Save changes</button>
+                    <button type="button" class="btn btn-secondary btn-block btn-lg" data-dismiss="modal" onclick="updatePatient()">Save changes</button>
                   </div>
                 </div>
               </form>
@@ -133,6 +184,20 @@
           <div class="card">
             <div class="card-header">Change your account details</div>
             <div class="card-body">
+			<div class="hidden" id="errorConfirmPasswordAlert">
+			  <div class="alert alert-danger" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">×</button>
+				<h4 class="alert-heading">Error!</h4>
+				<p class="mb-0">Passwords do not match.</p>
+			  </div>
+			</div>
+			<div class="hidden" id="errorOldPasswordAlert">
+			  <div class="alert alert-danger" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">×</button>
+				<h4 class="alert-heading">Error!</h4>
+				<p class="mb-0">Passwords do not match.</p>
+			  </div>
+			</div>
               <form>
                 <div class="form-group"> <label>Old password</label>
                   <input type="password" name="old_password" class="form-control" placeholder="Old password"> </div>
@@ -140,7 +205,7 @@
                   <input type="password" name="new_password" class="form-control" placeholder="New password"> </div>
                 <div class="form-group"> <label>Confirm new password</label>
                   <input type="password" name="confirm_new_password" class="form-control" placeholder="Confirm new password"> </div>
-                <button type="submit" class="btn btn-secondary btn-lg btn-block">Save changes</button>
+                <button type="submit" class="btn btn-secondary btn-lg btn-block">Change password</button>
               </form>
             </div>
           </div>
