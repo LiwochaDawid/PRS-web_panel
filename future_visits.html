@@ -105,11 +105,11 @@
     			}
 				if (date.setHours(0,0,0,0) == today.setHours(0,0,0,0)) {
 					date = year+"-"+month+"-"+day+" "+hours+":"+minutes;
-					$("#visits").find('tbody').append($('<tr id='+visitID+'><td>'+index+'</td><td>'+doctor+'</td><td>'+purpose+'</td><td>'+date+'</td><td><button type="button" class="deleteButton btn btn-secondary btn-block btn-sm" data-dismiss="modal" id="deleteButton" disabled>Delete</button></td></tr>'));
+					$("#visits").find('tbody').append($('<tr id='+visitID+'><td>'+index+'</td><td>'+doctor+'</td><td>'+purpose+'</td><td>'+date+'</td><td><button type="button" class="deleteButton btn btn-secondary btn-block btn-sm" data-dismiss="modal" id="deleteButton" disabled>Cancel</button></td></tr>'));
 				}
 				else {
 					date = year+"-"+month+"-"+day+" "+hours+":"+minutes;
-					$("#visits").find('tbody').append($('<tr id='+visitID+'><td>'+index+'</td><td>'+doctor+'</td><td>'+purpose+'</td><td>'+date+'</td><td><button type="button" class="deleteButton btn btn-secondary btn-block btn-sm" data-dismiss="modal" id="deleteButton">Delete</button></td></tr>'));
+					$("#visits").find('tbody').append($('<tr id='+visitID+'><td>'+index+'</td><td>'+doctor+'</td><td>'+purpose+'</td><td>'+date+'</td><td><button type="button" class="deleteButton btn btn-secondary btn-block btn-sm" data-dismiss="modal" id="deleteButton">Cancel</button></td></tr>'));
 				}
 			}
     	}
